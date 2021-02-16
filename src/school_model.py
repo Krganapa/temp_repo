@@ -67,7 +67,7 @@ intervention_section = parser_school['INTERVENTION']
 ventilation_type = intervention_section['ventilation_type']
 teacher_testing_frequency = eval(intervention_section['teacher_testing_freq'))
 teacher_vaccination_proportion = float(intervention_section['teacher_vaccine_prob']) 
-student_testing_frequency = eval(intervention_section['student_testing_freq'))
+student_testing_frequency = eval(intervention_section['student_testing_freq'])
 
 def generate_random(polygon):
     minx, miny, maxx, maxy = polygon.bounds
