@@ -62,7 +62,7 @@ parser_npi.read(config_file_path_prefix + npi_params_ini)
 
 # School Params 
 parser_school = configparser.ConfigParser()
-parser_school.read('schoolparams.ini')
+parser_school.read(config_file_path_prefix + 'schoolparams.ini')
 intervention_section = parser_school['INTERVENTION']
 ventilation_type = intervention_section['ventilation_type']
 teacher_testing_frequency = eval(intervention_section['teacher_testing_freq'])
