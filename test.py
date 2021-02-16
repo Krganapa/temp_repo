@@ -38,7 +38,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-map_path = '/oasis/scratch/comet/geoact/temp_project/layouts/schoollayout1.shp'#"./test/testdata/schoollayout1.shp" #/oasis/scratch/comet/geoact/temp_project/layouts/schoollayout1.shp' #"./test/testdata/schoollayout1.shp"
+map_path = '/oasis/scratch/comet/geoact/temp_project/layouts/schoollayout1.shp' #"./test/testdata/schoollayout1.shp" #/oasis/scratch/comet/geoact/temp_project/layouts/schoollayout1.shp' #"./test/testdata/schoollayout1.shp"
 schedule_path = "./test/testdata/small_schedule.csv" 
 schedule_steps = 5 # full day_schedule steps should be 90
 

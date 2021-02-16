@@ -60,10 +60,14 @@ npi_params_ini = 'NPI.ini'
 parser_npi = configparser.ConfigParser()
 parser_npi.read(config_file_path_prefix + npi_params_ini)
 
-
-
-
-
+# School Params 
+parser_school = configparser.ConfigParser()
+parser_school.read('schoolparams.ini')
+intervention_section = parser_school['INTERVENTION']
+ventilation_type = intervention_section['ventilation_type']
+teacher_testing_frequency = eval(intervention_section['teacher_testing_freq'))
+teacher_vaccination_proportion = float(intervention_section['teacher_vaccine_prob']) 
+student_testing_frequency = eval(intervention_section['student_testing_freq'))
 
 def generate_random(polygon):
     minx, miny, maxx, maxy = polygon.bounds
@@ -553,6 +557,9 @@ class Teacher(Human):
         viz_ini_file = 'vizparams.ini'
         parser = configparser.ConfigParser()
         parser.read(config_file_path_prefix + viz_ini_file)
+
+        self.vaccinated = np.random.choice([True, False], p=[teacher_vaccination_proportion, 1-teacher_vaccination_proportion])
+
         teacher_viz_params = parser['TEACHER']
         
         self.marker = teacher_viz_params['marker']
@@ -593,7 +600,7 @@ class Classroom(GeoAgent):
         self.viral_load = 0
         self.prob_move = False
         self.schedule_id = None
-        self.environment = 'open_windows'
+        self.environment = ventilation_type
         self.floor_area = shapely.affinity.scale(shape, xfact=0.37, yfact=0.37, origin=(0,0)).area
         self.height = 12
 
@@ -955,9 +962,7 @@ class School(Model):
                 pnt = generate_random(classroom.shape)
                 agent_point = Teacher(model=self, shape=pnt, unique_id="T"+str(self.__teacher_id), room=classroom)
                 
-                ######ALL TEACHERS VACCINATED#####
-                agent_point.vaccinated = True
-                ##################################
+              
 
                 self.grid.add_agents(agent_point)
                 self.schedule.add(agent_point)
@@ -1047,6 +1052,7 @@ class School(Model):
         
     
     def __update_day(self):
+
         '''
         update incubation time, reset viral_load, remove symptomatic agents, aerosol transmission etc for end of day
         '''
@@ -1068,7 +1074,6 @@ class School(Model):
             
         for a in self.schedule.agents[:]:
             if issubclass(type(a), Human):
-
                     
                 if a.symptoms:
                     # remove agent if symptom onset
@@ -1080,6 +1085,23 @@ class School(Model):
                         new_teacher.classroom = a.classroom
                     self.schedule.remove(a)
                     self.grid.remove_agent(a)
+
+                elif isinstance(a, Teacher):
+                    if teacher_testing_frequency is not None:
+                        if (self.day_count%teacher_testing_frequency == 0):
+                            # assign a new teacher to position
+                            new_teacher = self.idle_teachers.pop()
+                            new_teacher.shape = a.shape
+                            new_teacher.room = a.room
+                            new_teacher.classroom = a.classroom
+                            self.schedule.remove(a)
+                            self.grid.remove_agent(a)   
+                
+                elif isinstance(a, Student):
+                    if student_testing_frequency is not None:
+                        if (self.day_count %  student_testing_frequency== 0):
+                            self.schedule.remove(a)
+                            self.grid.remove_agent(a)            
                     
                 # UPDATE 10/16: infectious made obsolete, end of day update rework
                 elif a.health_status == "exposed":
@@ -1102,6 +1124,9 @@ class School(Model):
             else:
                 # reset viral_load of room agents
                 a.viral_load = 0
+
+        self.day_count += 1
+        
         
     def step(self):
         '''
