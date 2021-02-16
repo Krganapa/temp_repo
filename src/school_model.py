@@ -1090,7 +1090,7 @@ class School(Model):
                     if teacher_testing_frequency is not None:
                         if (self.day_count%teacher_testing_frequency == 0):
                             # assign a new teacher to position
-                            if len(self.idle_teachers > 0):
+                            if len(self.idle_teachers) > 0:
                                 new_teacher = self.idle_teachers.pop()
                                 new_teacher.shape = a.shape
                                 new_teacher.room = a.room
